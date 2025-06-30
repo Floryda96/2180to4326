@@ -1,3 +1,4 @@
+import sys
 import os
 import geopandas as gpd
 # Lista plików wejściowych (bez ścieżki, zakładamy że są w tym samym folderze co skrypt)
@@ -31,3 +32,5 @@ for shp_file in shapefiles:
         print(f":white_check_mark: Przekonwertowano: {shp_file} → {output_filename}")
     except Exception as e:
         print(f":x: Błąd przy pliku {shp_file}: {e}")
+if getattr(sys, 'frozen', False):
+    input("Naciśnij Enter, aby zakończyć...")
