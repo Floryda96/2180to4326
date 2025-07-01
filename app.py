@@ -4,7 +4,6 @@ import os
 import shutil
 import requests
 
-
 def fetch_dem_data(south, north, west, east, api_key="182cf1a7e1c9ff57784ab4496e34e31e", demtype="COP30", output_format="GTiff"):
     url = "https://portal.opentopography.org/API/globaldem"
 
@@ -104,7 +103,8 @@ for shp_file in shapefiles:
     except Exception as e:
         print(f":x: Błąd przy pliku {shp_file}: {e}")
 copy_styles_to_output(output_dir)
-west, east, south, north= bbox_z_pliku(input_dir)
+west, east, south, north= bbox_z_pliku('ppoz_pkt.geojson')
+print(fetch_dem_data(south, north, west, east))
 fetch_dem_data(south, north, west, east)
 if getattr(sys, 'frozen', False):
     input("Naciśnij Enter, aby zakończyć...")
