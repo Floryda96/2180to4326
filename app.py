@@ -2,6 +2,61 @@ import sys
 import geopandas as gpd
 import os
 import shutil
+import requests
+
+
+def fetch_dem_data(south, north, west, east, api_key="182cf1a7e1c9ff57784ab4496e34e31e", demtype="COP30", output_format="GTiff"):
+    url = "https://portal.opentopography.org/API/globaldem"
+
+    params = {
+        "demtype": demtype,
+        "south": south,
+        "north": north,
+        "west": west,
+        "east": east,
+        "outputFormat": output_format,
+        "API_Key": api_key
+    }
+
+    headers = {
+        "accept": "*/*"
+    }
+
+    response = requests.get(url, params=params, headers=headers)
+
+    if response.status_code == 200:
+        filename = "DEM.tif"
+        with open(filename, "wb") as f:
+            f.write(response.content)
+        print(f"DEM data saved to {filename}")
+    else:
+        print(f"Failed to fetch DEM data: {response.status_code}")
+        print(response.text)
+
+
+def bbox_z_pliku(input_dir):
+    try:
+        gdf = gpd.read_file(input_dir)
+        x_coords = []
+        y_coords = []
+        for geom in gdf.geometry:
+            if geom.geom_type == 'Point':
+                x_coords.append(geom.x)
+                y_coords.append(geom.y)
+            elif geom.geom_type == 'MultiPoint':
+                for point in geom.geoms:
+                    x_coords.append(point.x)
+                    y_coords.append(point.y)
+        if not x_coords:
+            raise ValueError("Nie znaleziono punktów w pliku")
+        west = min(x_coords) - 30
+        east = max(x_coords) + 30
+        south = min(y_coords) - 30
+        north = max(y_coords) + 30
+        return west, east, south, north
+    except Exception as e:
+        raise Exception(f"Błąd odczytu pliku: {e}")
+
 def resource_path(relative_path):
     # Gdy uruchomione z .exe, zasoby są wypakowane do sys._MEIPASS
     try:
@@ -49,5 +104,7 @@ for shp_file in shapefiles:
     except Exception as e:
         print(f":x: Błąd przy pliku {shp_file}: {e}")
 copy_styles_to_output(output_dir)
+west, east, south, north= bbox_z_pliku(input_dir)
+fetch_dem_data(south, north, west, east)
 if getattr(sys, 'frozen', False):
     input("Naciśnij Enter, aby zakończyć...")
