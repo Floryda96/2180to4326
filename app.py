@@ -7,7 +7,7 @@ import math
 
 # Configuration constants
 SOURCE_CRS = 2180  # EPSG:2180 (PUWG 2000) - Polish coordinate system
-TARGET_CRS = 4326  # WGS84 - Global coordinate system
+TARGET_CRS = 3857  # WGS84 - Global coordinate system
 DEM_FILENAME = "DEM.tif"
 API_TIMEOUT = 30
 
